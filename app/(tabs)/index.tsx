@@ -1,75 +1,144 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function HomeScreen() {
+  const isExpanded = useSharedValue(false);
+  const [showImage, setShowImage] = useState(false);
+  const height = useSharedValue(100);
+
+  const handlePress = () => {
+    const newExpandedState = !isExpanded.value;
+    isExpanded.value = newExpandedState;
+
+    // Delay hiding image to allow exit animation
+    if (newExpandedState) {
+      setShowImage(true);
+    } else {
+      setTimeout(() => setShowImage(false), 200);
+    }
+  };
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      height: withSpring(isExpanded.value ? 400 : 100, {
+        damping: 15,
+        stiffness: 100,
+      }),
+      backgroundColor: "#fff",
+    };
+  });
+
+  const imageAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: withTiming(isExpanded.value ? 1 : 0, {
+        duration: isExpanded.value ? 600 : 200,
+      }),
+      height: withTiming(isExpanded.value ? 200 : 0, {
+        duration: isExpanded.value ? 300 : 300,
+      }),
+      transform: [
+        {
+          translateY: withSpring(isExpanded.value ? 0 : 20, {
+            damping: 15,
+            stiffness: 100,
+          }),
+        },
+      ],
+    };
+  });
+
+  const textAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: withSpring(isExpanded.value ? -60 : 0, {
+            damping: 15,
+            stiffness: 100,
+          }),
+        },
+      ],
+      opacity: withTiming(isExpanded.value ? 1 : 0.9, {
+        duration: isExpanded.value ? 300 : 400,
+      }),
+    };
+  });
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <AnimatedPressable
+        onPress={handlePress}
+        style={[
+          styles.box,
+          animatedStyle,
+          {
+            height,
+          },
+        ]}
+      >
+        <View style={styles.contentContainer}>
+          <Animated.Text
+            style={[
+              {
+                fontSize: 18,
+                fontWeight: "bold",
+              },
+              textAnimatedStyle,
+            ]}
+          >
+            Memory from Brooklyn
+          </Animated.Text>
+
+          {showImage && (
+            <Animated.Image
+              source={{
+                uri: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop",
+              }}
+              style={[styles.image, imageAnimatedStyle]}
+              resizeMode='cover'
+            />
+          )}
+        </View>
+      </AnimatedPressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  box: {
+    width: 300,
+    backgroundColor: "#ffffffff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  contentContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    height: "100%",
+  },
+  image: {
+    width: 250,
+    height: 150,
+    borderRadius: 8,
   },
 });
