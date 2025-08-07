@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,15 +9,13 @@ import Animated, {
 
 interface CustomMarkerProps {
   title?: string;
-  description?: string;
-  imageSource?: any;
+  imageSource?: string | any; // Can be a URL string or local image require()
   id: string; // Optional ID for the marker
   onPress?: (markerId: string) => void;
 }
 
 export default function CustomMarker({
   title = "Custom Location",
-  description = "Marker description",
   imageSource,
   id,
   onPress,
@@ -31,6 +29,10 @@ export default function CustomMarker({
   const cardWidth = useSharedValue(64);
   const textOpacity = useSharedValue(0);
   const borderRadius = useSharedValue(32);
+  const imageWidth = useSharedValue(50);
+  const imageHeight = useSharedValue(50);
+  const imageBorderRadius = useSharedValue(22);
+  const textTranslateY = useSharedValue(20);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -50,6 +52,15 @@ export default function CustomMarker({
   const textAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: textOpacity.value,
+      transform: [{ translateY: textTranslateY.value }],
+    };
+  });
+
+  const imageAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      width: imageWidth.value,
+      height: imageHeight.value,
+      borderRadius: imageBorderRadius.value,
     };
   });
 
@@ -63,17 +74,25 @@ export default function CustomMarker({
   const toggleExpansion = () => {
     if (!isExpanded) {
       // Expand to card - expand upward to maintain bottom anchor
-      cardHeight.value = withSpring(110, { damping: 20, stiffness: 150 });
-      cardWidth.value = withSpring(150, { damping: 20, stiffness: 150 });
+      cardHeight.value = withSpring(180, { damping: 20, stiffness: 150 });
+      cardWidth.value = withSpring(350, { damping: 20, stiffness: 150 });
       borderRadius.value = withSpring(15, { damping: 20, stiffness: 150 });
-      textOpacity.value = withTiming(1, { duration: 500 });
+      imageWidth.value = withSpring(330, { damping: 20, stiffness: 150 });
+      imageHeight.value = withSpring(140, { damping: 20, stiffness: 150 });
+      imageBorderRadius.value = withSpring(10, { damping: 20, stiffness: 150 });
+      textOpacity.value = withTiming(1, { duration: 600 });
+      textTranslateY.value = withSpring(0, { damping: 20, stiffness: 200 });
       setIsExpanded(true);
     } else {
       // Collapse to image only
-      textOpacity.value = withTiming(0, { duration: 250 });
+      textOpacity.value = withTiming(0, { duration: 300 });
+      textTranslateY.value = withSpring(20, { damping: 20, stiffness: 200 });
       cardHeight.value = withSpring(64, { damping: 20, stiffness: 150 });
       cardWidth.value = withSpring(64, { damping: 20, stiffness: 150 });
       borderRadius.value = withSpring(32, { damping: 20, stiffness: 150 });
+      imageWidth.value = withSpring(50, { damping: 20, stiffness: 150 });
+      imageHeight.value = withSpring(50, { damping: 20, stiffness: 150 });
+      imageBorderRadius.value = withSpring(22, { damping: 20, stiffness: 150 });
       setIsExpanded(false);
     }
   };
@@ -107,23 +126,26 @@ export default function CustomMarker({
         ]}
       >
         <Animated.View style={[styles.card, cardAnimatedStyle]}>
-          <View style={styles.imageContainer}>
-            <Image
-              source={imageSource || require("../assets/images/react-logo.png")}
-              style={styles.markerImage}
-              resizeMode='contain'
-            />
-          </View>
           {isExpanded && (
             <Animated.View style={[styles.textContainer, textAnimatedStyle]}>
               <Text style={styles.title} numberOfLines={1}>
                 {title}
               </Text>
-              <Text style={styles.description} numberOfLines={2}>
-                {description}
-              </Text>
             </Animated.View>
           )}
+          <View style={styles.imageContainer}>
+            <Animated.Image
+              source={
+                imageSource
+                  ? typeof imageSource === "string"
+                    ? { uri: imageSource }
+                    : imageSource
+                  : require("../assets/images/react-logo.png")
+              }
+              style={[styles.markerImage, imageAnimatedStyle]}
+              resizeMode='cover'
+            />
+          </View>
         </Animated.View>
       </Pressable>
       {isExpanded && <View style={styles.pointer} />}
@@ -139,7 +161,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "white",
-    padding: 10,
+
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -159,9 +181,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   markerImage: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
     borderColor: "#ffffff",
   },
   textContainer: {
@@ -169,20 +188,13 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingHorizontal: 8,
     paddingBottom: 6,
-    maxWidth: 120,
+    maxWidth: 380,
   },
   title: {
     fontSize: 13,
     fontWeight: "700",
     color: "#2c3e50",
     textAlign: "center",
-    marginBottom: 3,
-  },
-  description: {
-    fontSize: 11,
-    color: "#7f8c8d",
-    textAlign: "center",
-    lineHeight: 15,
   },
   pointer: {
     width: 0,
