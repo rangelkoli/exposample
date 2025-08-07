@@ -11,7 +11,7 @@ export default function HomeScreen() {
         imageUri='https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop'
       />
       <CustomMarker
-        title='asd'
+        title='Memory from Brooklyn'
         imageSource={
           "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop"
         }
@@ -27,5 +27,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#f8f9fa",
+    gap: 20,
   },
 });

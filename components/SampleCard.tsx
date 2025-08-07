@@ -33,7 +33,7 @@ export default function SampleCard({ title, imageUri }: SampleCardProps) {
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      height: withSpring(isExpanded.value ? 320 : 100, {
+      height: withSpring(isExpanded.value ? 300 : 100, {
         damping: 18,
         stiffness: 120,
       }),
@@ -54,7 +54,7 @@ export default function SampleCard({ title, imageUri }: SampleCardProps) {
       opacity: withTiming(isExpanded.value ? 1 : 0, {
         duration: isExpanded.value ? 500 : 200,
       }),
-      height: withTiming(isExpanded.value ? 150 : 0, {
+      height: withTiming(isExpanded.value ? 200 : 0, {
         duration: isExpanded.value ? 400 : 250,
       }),
       transform: [
@@ -78,7 +78,7 @@ export default function SampleCard({ title, imageUri }: SampleCardProps) {
     return {
       transform: [
         {
-          translateY: withSpring(isExpanded.value ? -30 : 0, {
+          translateY: withSpring(isExpanded.value ? -20 : 0, {
             damping: 20,
             stiffness: 120,
           }),
@@ -87,7 +87,7 @@ export default function SampleCard({ title, imageUri }: SampleCardProps) {
       opacity: withTiming(isExpanded.value ? 0.95 : 1, {
         duration: isExpanded.value ? 300 : 200,
       }),
-      marginBottom: withTiming(isExpanded.value ? 8 : 0, {
+      marginBottom: withTiming(isExpanded.value ? 0 : 0, {
         duration: isExpanded.value ? 400 : 200,
       }),
     };
@@ -123,7 +123,7 @@ export default function SampleCard({ title, imageUri }: SampleCardProps) {
 
 const styles = StyleSheet.create({
   box: {
-    width: 320,
+    width: 350,
     backgroundColor: "#ffffff",
     borderRadius: 20,
     shadowColor: "#000",
@@ -140,6 +140,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     alignItems: "center",
     justifyContent: "center",
+    height: "100%",
     flex: 1,
   },
   title: {
@@ -150,10 +151,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   image: {
-    width: 270,
-    height: 150,
+    width: 320,
+    height: 200,
     borderRadius: 16,
-    marginTop: 0,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,

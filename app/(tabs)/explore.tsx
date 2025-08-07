@@ -14,22 +14,7 @@ export default function TabTwoScreen() {
       id: "marker-1",
       coordinate: { latitude: 43.041611, longitude: -76.134768 },
       title: "Downtown Syracuse",
-      description: "Beautiful downtown area with great restaurants and shops",
       imageSource: { uri: "https://picsum.photos/seed/downtown/60/60" },
-    },
-    {
-      id: "marker-2",
-      coordinate: { latitude: 43.048611, longitude: -76.140768 },
-      title: "Syracuse University",
-      description: "Historic university campus with stunning architecture",
-      imageSource: { uri: "https://picsum.photos/seed/university/60/60" },
-    },
-    {
-      id: "marker-3",
-      coordinate: { latitude: 43.038611, longitude: -76.128768 },
-      title: "Onondaga Lake Park",
-      description: "Scenic park perfect for outdoor activities and relaxation",
-      imageSource: { uri: "https://picsum.photos/seed/park/60/60" },
     },
   ];
 
@@ -37,12 +22,9 @@ export default function TabTwoScreen() {
     markerId: string,
     coordinate: { latitude: number; longitude: number }
   ) => {
-    // Calculate offset to center the marker nicely on screen
-    const offsetLatitude = 0.005;
-
     mapRef.current?.animateToRegion(
       {
-        latitude: coordinate.latitude + offsetLatitude,
+        latitude: coordinate.latitude,
         longitude: coordinate.longitude,
         latitudeDelta: 0.015,
         longitudeDelta: 0.015,
@@ -55,6 +37,15 @@ export default function TabTwoScreen() {
 
   const handleMapPress = () => {
     setSelectedMarkerId(null);
+    mapRef.current?.animateToRegion(
+      {
+        latitude: 43.041611,
+        longitude: -76.134768,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      },
+      1000
+    );
   };
 
   return (
