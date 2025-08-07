@@ -27,26 +27,40 @@ export default function HomeScreen() {
   };
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      height: withSpring(isExpanded.value ? 400 : 100, {
-        damping: 15,
-        stiffness: 100,
+      height: withSpring(isExpanded.value ? 420 : 120, {
+        damping: 18,
+        stiffness: 120,
       }),
-      backgroundColor: "#fff",
+      backgroundColor: "#ffffff",
+      transform: [
+        {
+          scale: withSpring(isExpanded.value ? 1.02 : 1, {
+            damping: 15,
+            stiffness: 100,
+          }),
+        },
+      ],
     };
   });
 
   const imageAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: withTiming(isExpanded.value ? 1 : 0, {
-        duration: isExpanded.value ? 600 : 200,
+        duration: isExpanded.value ? 500 : 200,
       }),
-      height: withTiming(isExpanded.value ? 200 : 0, {
-        duration: isExpanded.value ? 300 : 300,
+      height: withTiming(isExpanded.value ? 180 : 0, {
+        duration: isExpanded.value ? 400 : 250,
       }),
       transform: [
         {
-          translateY: withSpring(isExpanded.value ? 0 : 20, {
-            damping: 15,
+          scale: withSpring(isExpanded.value ? 1 : 0.9, {
+            damping: 20,
+            stiffness: 120,
+          }),
+        },
+        {
+          translateY: withSpring(isExpanded.value ? 0 : 15, {
+            damping: 18,
             stiffness: 100,
           }),
         },
@@ -58,14 +72,17 @@ export default function HomeScreen() {
     return {
       transform: [
         {
-          translateY: withSpring(isExpanded.value ? -60 : 0, {
-            damping: 15,
-            stiffness: 100,
+          translateY: withSpring(isExpanded.value ? -40 : 0, {
+            damping: 20,
+            stiffness: 120,
           }),
         },
       ],
-      opacity: withTiming(isExpanded.value ? 1 : 0.9, {
-        duration: isExpanded.value ? 300 : 400,
+      opacity: withTiming(isExpanded.value ? 0.95 : 1, {
+        duration: isExpanded.value ? 300 : 200,
+      }),
+      marginBottom: withTiming(isExpanded.value ? 20 : 0, {
+        duration: isExpanded.value ? 400 : 200,
       }),
     };
   });
@@ -86,8 +103,11 @@ export default function HomeScreen() {
           <Animated.Text
             style={[
               {
-                fontSize: 18,
-                fontWeight: "bold",
+                fontSize: 22,
+                fontWeight: "700",
+                color: "#1a1a1a",
+                textAlign: "center",
+                letterSpacing: 0.5,
               },
               textAnimatedStyle,
             ]}
@@ -115,30 +135,43 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
+    backgroundColor: "#f8f9fa",
   },
   box: {
-    width: 300,
-    backgroundColor: "#ffffffff",
-    borderRadius: 10,
+    width: 320,
+    backgroundColor: "#ffffff",
+    borderRadius: 20,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 8,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    elevation: 12,
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.04)",
   },
   contentContainer: {
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
-    height: "100%",
+    paddingHorizontal: 24,
+    paddingVertical: 20,
   },
   image: {
-    width: 250,
-    height: 150,
-    borderRadius: 8,
+    width: 270,
+    height: 180,
+    borderRadius: 16,
+    marginTop: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
   },
 });
