@@ -22,3 +22,6 @@ This project uses [`react-native-reanimated`](https://docs.swmansion.com/react-n
 - Could group markers when the map is zoomed out enough so that the app wont break when there are a lot more markers
 
 # Demo of the project:
+
+https://github.com/user-attachments/assets/a31d124e-bbfe-4794-b161-fabc7a0bd36b
+
