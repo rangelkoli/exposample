@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -11,15 +9,13 @@ import Animated, {
 
 interface CustomMarkerProps {
   title?: string;
-  description?: string;
-  imageSource?: any;
+  imageSource?: string | any; // Can be a URL string or local image require()
   id: string; // Optional ID for the marker
   onPress?: (markerId: string) => void;
 }
 
 export default function CustomMarker({
   title = "Custom Location",
-  description = "Marker description",
   imageSource,
   id,
   onPress,
@@ -29,10 +25,14 @@ export default function CustomMarker({
   const scale = useSharedValue(1);
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(20);
-  const cardHeight = useSharedValue(60); // Initial height for image only
-  const cardWidth = useSharedValue(60);
+  const cardHeight = useSharedValue(64); // Initial height for image only
+  const cardWidth = useSharedValue(64);
   const textOpacity = useSharedValue(0);
-  const borderRadius = useSharedValue(30);
+  const borderRadius = useSharedValue(32);
+  const imageWidth = useSharedValue(50);
+  const imageHeight = useSharedValue(50);
+  const imageBorderRadius = useSharedValue(22);
+  const textTranslateY = useSharedValue(20);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -52,6 +52,15 @@ export default function CustomMarker({
   const textAnimatedStyle = useAnimatedStyle(() => {
     return {
       opacity: textOpacity.value,
+      transform: [{ translateY: textTranslateY.value }],
+    };
+  });
+
+  const imageAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      width: imageWidth.value,
+      height: imageHeight.value,
+      borderRadius: imageBorderRadius.value,
     };
   });
 
@@ -65,56 +74,80 @@ export default function CustomMarker({
   const toggleExpansion = () => {
     if (!isExpanded) {
       // Expand to card - expand upward to maintain bottom anchor
-      cardHeight.value = withSpring(100, { damping: 15, stiffness: 120 });
-      cardWidth.value = withSpring(140, { damping: 15, stiffness: 120 });
-      borderRadius.value = withSpring(12, { damping: 15, stiffness: 120 });
-      textOpacity.value = withTiming(1, { duration: 400 });
+      cardHeight.value = withSpring(180, { damping: 20, stiffness: 150 });
+      cardWidth.value = withSpring(350, { damping: 20, stiffness: 150 });
+      borderRadius.value = withSpring(15, { damping: 20, stiffness: 150 });
+      imageWidth.value = withSpring(330, { damping: 20, stiffness: 150 });
+      imageHeight.value = withSpring(140, { damping: 20, stiffness: 150 });
+      imageBorderRadius.value = withSpring(10, { damping: 20, stiffness: 150 });
+      textOpacity.value = withTiming(1, { duration: 600 });
+      textTranslateY.value = withSpring(0, { damping: 20, stiffness: 200 });
       setIsExpanded(true);
     } else {
       // Collapse to image only
-      textOpacity.value = withTiming(0, { duration: 200 });
-      cardHeight.value = withSpring(60, { damping: 15, stiffness: 120 });
-      cardWidth.value = withSpring(60, { damping: 15, stiffness: 120 });
-      borderRadius.value = withSpring(30, { damping: 15, stiffness: 120 });
+      textOpacity.value = withTiming(0, { duration: 300 });
+      textTranslateY.value = withSpring(20, { damping: 20, stiffness: 200 });
+      cardHeight.value = withSpring(64, { damping: 20, stiffness: 150 });
+      cardWidth.value = withSpring(64, { damping: 20, stiffness: 150 });
+      borderRadius.value = withSpring(32, { damping: 20, stiffness: 150 });
+      imageWidth.value = withSpring(50, { damping: 20, stiffness: 150 });
+      imageHeight.value = withSpring(50, { damping: 20, stiffness: 150 });
+      imageBorderRadius.value = withSpring(22, { damping: 20, stiffness: 150 });
       setIsExpanded(false);
     }
   };
 
-  const tapGesture = Gesture.Tap()
-    .onBegin(() => {
-      scale.value = withSpring(1.05, { damping: 10, stiffness: 300 });
-    })
-    .onFinalize(() => {
-      scale.value = withSpring(1, { damping: 10, stiffness: 300 });
-      runOnJS(toggleExpansion)();
-      if (onPress && id) {
-        runOnJS(onPress)(id);
-      }
-    });
+  const handlePress = () => {
+    toggleExpansion();
+    if (onPress && id) {
+      onPress(id);
+    }
+  };
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.95, { damping: 15, stiffness: 300 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+  };
 
   return (
     <Animated.View style={[styles.markerContainer, animatedStyle]}>
-      <GestureDetector gesture={tapGesture}>
+      <Pressable
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        android_ripple={{ color: "rgba(0,0,0,0.1)", borderless: false }}
+        style={({ pressed }) => [
+          {
+            opacity: pressed ? 0.8 : 1,
+          },
+        ]}
+      >
         <Animated.View style={[styles.card, cardAnimatedStyle]}>
-          <View style={styles.imageContainer}>
-            <Image
-              source={imageSource || require("../assets/images/react-logo.png")}
-              style={styles.markerImage}
-              resizeMode='contain'
-            />
-          </View>
           {isExpanded && (
             <Animated.View style={[styles.textContainer, textAnimatedStyle]}>
               <Text style={styles.title} numberOfLines={1}>
                 {title}
               </Text>
-              <Text style={styles.description} numberOfLines={2}>
-                {description}
-              </Text>
             </Animated.View>
           )}
+          <View style={styles.imageContainer}>
+            <Animated.Image
+              source={
+                imageSource
+                  ? typeof imageSource === "string"
+                    ? { uri: imageSource }
+                    : imageSource
+                  : require("../assets/images/react-logo.png")
+              }
+              style={[styles.markerImage, imageAnimatedStyle]}
+              resizeMode='cover'
+            />
+          </View>
         </Animated.View>
-      </GestureDetector>
+      </Pressable>
       {isExpanded && <View style={styles.pointer} />}
     </Animated.View>
   );
@@ -128,17 +161,17 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "white",
-    padding: 8,
+
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 6,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 8,
-    borderWidth: 2,
-    borderColor: "#e0e0e0",
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 12,
+    borderWidth: 1,
+    borderColor: "#f0f0f0",
     justifyContent: "center",
     alignItems: "center",
     overflow: "hidden",
@@ -148,40 +181,40 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   markerImage: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    borderColor: "#ffffff",
   },
   textContainer: {
     alignItems: "center",
-    paddingTop: 6,
-    paddingHorizontal: 6,
-    paddingBottom: 4,
+    paddingTop: 8,
+    paddingHorizontal: 8,
+    paddingBottom: 6,
+    maxWidth: 380,
   },
   title: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#333",
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#2c3e50",
     textAlign: "center",
-    marginBottom: 2,
-  },
-  description: {
-    fontSize: 10,
-    color: "#666",
-    textAlign: "center",
-    lineHeight: 14,
   },
   pointer: {
     width: 0,
     height: 0,
-    borderLeftWidth: 8,
-    borderRightWidth: 8,
-    borderTopWidth: 12,
+    borderLeftWidth: 10,
+    borderRightWidth: 10,
+    borderTopWidth: 15,
     borderStyle: "solid",
     backgroundColor: "transparent",
     borderLeftColor: "transparent",
     borderRightColor: "transparent",
     borderTopColor: "white",
-    marginTop: -1,
+    marginTop: -2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 8,
   },
 });
